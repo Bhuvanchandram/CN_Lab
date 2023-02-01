@@ -5,6 +5,7 @@ int recv(char *ip,char *op,char *poly, int mode)
 {
     strcpy(op,ip);
     
+    return 1;
 }
 int main()
 {
