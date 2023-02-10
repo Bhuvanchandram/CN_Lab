@@ -1,0 +1,469 @@
+1) FRAME SORT (Works In Python2 as well, or else you can use python3 using various built-in functions, but in order to run, give command "python3 filename.py" in Lab
+
+import random
+
+class Frame:
+    def __init__(self, seqNo, data=None):
+        self.seqNo=seqNo
+        self.data=data
+
+def bubble_sort(arr):
+    for i in range(len(arr)):
+        for j in range(len(arr)-i-1):
+            if arr[j].seqNo>arr[j+1].seqNo:
+                temp=arr[j]
+                arr[j]=arr[j+1]
+                arr[j+1]=temp
+
+n=int(input("Enter the number of frames:"))
+
+seqList=[]
+
+for _ in range(n):
+    r=random.randint(1,n*100)
+    while r in seqList:
+        r=random.randint(1,n*100)
+    seqList.append(r)
+
+frames=[]
+for _ in range(n):
+    ch=random.choice(seqList)
+    frames.append(Frame(ch))
+    seqList.remove(ch)
+
+for i in range(n):
+    frames[i].data=input("Enter the data into the frame with sequence number {}:".format(frames[i].seqNo))
+
+bubble_sort(frames) 
+print("The sorted Frames are:----------------")
+
+for i in range(len(frames)):
+    print("{} --> {}".format(frames[i].seqNo,frames[i].data))
+    
+print("") 
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2) CRC:
+
+#include<bits/stdc++.h>
+using namespace std;
+
+string crc(string rem, string poly) {
+    string data = rem;
+    int m = poly.length();
+    for(int i=0; i<m-1; i++) {
+        data.append("0");
+    }
+    int n = data.length();
+    for(int i=0; i<n-m+1; i++) {
+        if(data[i] == '1') {
+            for(int j=0; j<m; j++) {
+                if(data[i+j] == poly[j]) {
+                    data[i+j] = '0';
+                }
+                else data[i+j] = '1';
+            }   
+        }
+    }
+    return data.substr(n-m+1);
+}
+
+int main() {
+    string poly, data;
+    cout << "Enter the polynomial(data to be trasmitted) in binary: ";
+    cin >> data;
+    cout << "Enter the Checksum Divisor(generator polynomial) in binary: ";
+    cin >> poly;
+    string rem = crc(data, poly);
+    cout << "The generated codeword: " << data+rem << endl;
+    string recv;
+    cout << "Enter the received codeword: ";
+    cin >> recv;
+    if(recv == data+rem) {
+        cout << "NO ERROR";
+    }
+    else cout << "ERROR";
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3) BELLMAN FORD: (Works In Python2 as well, or else you can use python3 using various built-in functions, but in order to run, give command "python3 filename.py" in Lab
+
+from sys import maxsize
+
+class Graph:
+    def __init__(self, v):
+        self.V = v 
+        self.g = []
+    
+    def addEdge(self, u, v, wt):
+        self.g.append([u, v, wt])
+    
+    def bellmanFord(self, src):
+        dist = [maxsize] * self.V       #Array of size V in which all elements are initialized to maxsize
+        dist[src] = 0
+
+        #Relaxing all edges V-1 times
+        for _ in range(self.V-1):
+            for u, v, wt in self.g:
+                if(dist[u] != maxsize and dist[u] + wt < dist[v]):
+                    dist[v] = dist[u] + wt
+
+        #Relaxing one more time to detect if negative weighted cycle exists
+        for u, v, wt in self.g:
+            if(dist[u] != maxsize and dist[u] + wt < dist[v]):
+                print("The graph contains negative weighted cycle")
+                return
+
+        print("\n___Dist of all nodes from source___")
+        for i in range(self.V):
+            print("Dist of {} from src : {}".format(i, dist[i]))
+
+
+v = int(input("Enter no of vertices : "))
+e = int(input("Enter no of edges : "))
+
+graph = Graph(v)
+print("Enter src dest and weight of edges")
+for _ in range(e):
+    u = int(input("Enter src : "))
+    d = int(input("Enter dest : "))
+    wt = int(input("Enter weight : "))
+    # u, v, wt = map(int, input().split())
+    graph.addEdge(u, d, wt)
+
+source = int(input("Enter source node : "))
+graph.bellmanFord(source)
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+4) TCP (From SriramaBhat's GitHub, and bit modified)
+
+client program
+
+import java.io.*;
+import java.net.*;
+
+public class TCPClient {
+    public static void main(String[] args) throws Exception {
+        Socket cs = new Socket("localhost",4000);
+        System.out.println("Enter the file name:");
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        String fname=bf.readLine();
+
+        PrintWriter pw = new PrintWriter(cs.getOutputStream(), true);
+        pw.println(fname);
+
+        BufferedReader bc = new BufferedReader(new InputStreamReader(cs.getInputStream()));
+        String str;
+        while((str = bc.readLine()) != null) {
+            System.out.println(str);
+        }
+        bc.close();
+        pw.close();
+        cs.close(); 
+    }
+
+}
+
+
+
+Server Program (From SriramaBhat's GitHub, and bit modified)
+
+import java.io.*;
+import java.net.*;
+
+public class TCPServer {
+    public static void main(String[] args) throws Exception {
+        ServerSocket ss = new ServerSocket(4000);
+        System.out.println("Server is up......");
+        Socket cs = ss.accept();
+        System.out.println("Connection established.....");
+        BufferedReader bf = new BufferedReader(new InputStreamReader(cs.getInputStream()));
+        String fn = bf.readLine();
+
+        PrintWriter pw = new PrintWriter(cs.getOutputStream(),true);
+        try {
+            BufferedReader bb = new BufferedReader(new FileReader(fn));
+            String str;
+            while((str=bb.readLine()) != null) {
+                pw.println(str);
+            }
+            bb.close();
+        } catch (FileNotFoundException e) {
+            pw.println("File Doesn't exists!!!!!!!");
+        } finally {
+            System.out.println("Closing Connection");
+            pw.close();
+            bf.close();
+            cs.close();
+            ss.close();
+        } 
+
+    }
+}
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+5) UDP
+
+CLIENT PROGRAM (From SriramaBhat's GitHub, and bit modified)
+
+import java.io.*;
+import java.net.*;
+
+public class UDPClient {
+    public static void main(String args[]) {
+        try {
+            InetAddress IPA = InetAddress.getByName(args[0]);
+            int port = Integer.parseInt(args[1]);
+            Socket cs = new Socket(IPA,port);
+            BufferedReader bf = new BufferedReader(new InputStreamReader(cs.getInputStream()));
+            System.out.println(bf.readLine());
+            bf.close();
+            cs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    } 
+}
+
+SERVER PROGRAM (From SriramaBhat's GitHub, and bit modified)
+
+import java.io.*;
+import java.net.*;
+
+public class UDPServer {
+    public static void main(String[] args) {
+        try {
+            String message = args[0];
+            int spn = Integer.parseInt(args[1]);
+            ServerSocket ss = new ServerSocket(spn);
+            Socket cs = ss.accept();
+            PrintStream ps = new PrintStream(cs.getOutputStream());
+            ps.println(message);
+            System.out.println("Server has given response.....");
+            ps.flush();
+            cs.close();
+            ss.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    } 
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+6) RSA (this algo doesn't encrypt strings...its only for numbers(as data))
+(Works In Python2 as well, or else you can use python3 using various built-in functions, but in order to run, give command "python3 filename.py" in Lab
+
+import math
+import random
+
+def gcd(x,y):
+    while y:
+        x,y = y,x%y
+    return x
+
+def generate_pq():
+    nums = [i for i in range(2,101)]
+    
+    for n in range(2,101):
+        for i in range(2,int(math.ceil(n/2)+1)):
+            if n%i == 0:
+                nums.remove(n)
+                break
+            else:
+                continue
+    
+    p = random.choice(nums)
+    nums.remove(p)
+    q = random.choice(nums)
+    return p,q
+
+p,q = generate_pq()
+
+print("The value of p is:{}".format(p))
+print("The value of q is:{}".format(q))
+
+n = p * q
+phi = (p - 1) * (q - 1)
+
+def generate_e(phi):
+    poss_values = []
+    
+    for i in range (2,phi):
+        if gcd(i,phi) == 1:
+            e = i
+            poss_values.append(e)
+    
+    e = random.choice(poss_values)
+    return e
+
+e = generate_e(phi)
+
+print("The value of the public key 'e' is:{}".format(e))
+
+def generate_d(phi):
+    #poss_values = []
+    for i in range (2,phi):
+        if (i*e)%phi == 1:
+            d = i
+            break
+            #poss_values.append(e)
+    
+    return d
+
+d = generate_d(phi)
+
+print("The value of the private key 'd' is:{}".format(d))
+
+msg = random.randint(1,n)
+
+print("The message to be encrypted is:{}".format(msg))
+
+def encrypt(msg,e,n):
+    c = pow(msg,e,n)
+    return c
+
+c = encrypt(msg,e,n)
+
+print("The encrypted message(ciphertext) is:{}".format(c))
+
+def decrypt(msg,d,n):
+    dec = pow(msg,d,n)
+    return dec
+
+dec = decrypt(c,d,n)
+
+print("The decrypted message(original message/plaintext) is:{}".format(dec))
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+7) LEAKY BUCKET
+
+#include<bits/stdc++.h>
+
+using namespace std;
+
+int main()
+{
+    int queries, ip_rate, op_rate, b_size, size_left, storage=0;
+
+    cout<<"Enter the maximum capacity/size of the bucket:"<<endl;
+    cin>>b_size;
+    cout<<"Enter the input rate:"<<endl;
+    cin>>ip_rate;
+    cout<<"Enter the output rate:"<<endl;
+    cin>>op_rate;
+    cout<<"How many times you want to run(number of queries):"<<endl;
+    cin>>queries;
+
+    for(int i=0;i<queries;i++)
+    {
+        size_left=b_size-storage;
+        if(ip_rate<=size_left)
+        {
+            storage+=ip_rate;
+        }
+        else
+        {
+            cout<<"Packet loss:"<<ip_rate<<endl;
+        }
+
+        cout<<"Buffer size:"<<storage<<",out of:"<<b_size<<endl;
+        storage-=op_rate;
+    }
+    
+    return 0;
+}
+
+
+
+TOKEN BUCKET
+
+#include<bits/stdc++.h>
+using namespace std;
+
+int main()
+{
+    int RATE=50;
+    int CAPACITY=100;
+    int tokens=0;
+    int secs = 10;
+    int tokens_needed=60;
+
+    for(int i=0; i<secs; i++) {
+        //this_thread::sleep_for(chrono::seconds(1));
+        std::chrono::seconds(1).count();
+        tokens+=RATE;
+        if(tokens>CAPACITY){
+            tokens=CAPACITY;
+        }
+        if(tokens>=tokens_needed){
+            tokens -= tokens_needed;
+            cout<<"Performed operations remaining tokens:"<<tokens<<endl;
+        }
+        else cout<<"Not enough tokens needed to wait"<<endl;
+    }
+    return 0;
+}
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+8) RED (From SriramaBhat's GitHub)
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int QUEUE_SIZE = 10;
+const int MAX_PACKETS = 20;
+const double MAX_PROBABILITY = 0.7;
+const double MIN_PROBABILITY = 0.3;
+
+// Generates a random number between min and max
+double rand_double(double min, double max)
+{
+    return min + (max - min) * (double)rand() / RAND_MAX;
+}
+
+int main()
+{
+    // Seed the random number generator
+    srand(time(0));
+
+    int queue_size = 0;
+    double drop_probability = MIN_PROBABILITY;
+    for (int i = 0; i < MAX_PACKETS; i++)
+    {
+        if (queue_size == QUEUE_SIZE)
+        {
+            // Queue is full, drop the packet
+            cout << "Packet dropped (queue full)\n";
+            drop_probability = MIN_PROBABILITY;
+        }
+        else if (rand_double(0, 1) < drop_probability)
+        {
+            // Randomly drop the packet based on the current drop probability
+            cout << "Packet dropped (random)\n";
+            drop_probability += (MAX_PROBABILITY - MIN_PROBABILITY) / (MAX_PACKETS - 1);
+        }
+        else
+        {
+            // Accept the packet
+            cout << "Packet accepted\n";
+            queue_size++;
+            drop_probability = MIN_PROBABILITY;
+        }
+    }
+
+    return 0;
+}
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+NS Programs Refer SrirmaBhat's GitHub............

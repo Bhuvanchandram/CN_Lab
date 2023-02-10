@@ -1,0 +1,135 @@
+// Program to demonstrate leaky bucket algorithm
+#include <windows.h>
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef struct Packet
+{
+    int id, size;
+} Packet;
+
+class LeakyBucket
+{
+public:
+    int bucketSize;
+    int leakRate;
+    int curBufferSize;
+    vector<Packet> buffer;
+
+    LeakyBucket(int size, int rate)
+    {
+        bucketSize = size;
+        leakRate = rate;
+        curBufferSize = 0;
+    }
+
+    void addPacket(Packet p)
+    {
+        if (curBufferSize + p.size > bucketSize)
+        {
+            cout << "Bucket full, package rejected" << endl;
+            return;
+        }
+
+        buffer.push_back(p);
+        curBufferSize += p.size;
+        cout << "Packet with id " << p.id << " and size " << p.size << " is added to the bucket" << endl;
+    }
+
+    int leakage()
+    {
+        if (buffer.size() == 0)
+        {
+            cout << "No packets are in the bucket!" << endl;
+            return -1;
+        }
+        else
+        {
+            int n = leakRate;
+            int size = 0;
+            vector<int> pid;
+            while (buffer.size() != 0 && n != 0)
+            {
+                if (buffer.at(0).size > n)
+                {
+                    buffer.at(0).size -= n;
+                    pid.push_back(buffer.at(0).id);
+                    size += n;
+                    n = 0;
+                }
+                else
+                {
+                    n -= buffer.at(0).size;
+                    size += buffer.at(0).size;
+                    //  curBufferSize -= buffer.at(0).size;
+                    pid.push_back(buffer.at(0).id);
+                    buffer.erase(buffer.begin());
+                }
+            }
+
+            for (int i = 0; i < pid.size(); i++)
+                cout << "Packet with id = " << pid.at(i) << " is in the output" << endl;
+            cout << "Successful output with " << size << " units transmitted" << endl;
+            return 0;
+        }
+    }
+};
+
+int main()
+{
+    int cap, rate;
+    cout << "Enter the bucket size and output rate:" << endl;
+    cin >> cap >> rate;
+    LeakyBucket b = LeakyBucket(cap, rate);
+    srand(time(0));
+    for (int i = 0; i < 10; i++)
+    {
+        Packet p;
+        p.id = i + 1;
+        p.size = rand() % 200;
+        b.addPacket(p);
+    }
+
+    while (true)
+    {
+        int temp = b.leakage();
+        if (temp == -1)
+            break;
+        cout << "Interval" << endl;
+        Sleep(1);
+    }
+
+    return 0;
+}
+
+*******************************************************************
+// Token bucket (no output)
+#include <iostream>
+#include <chrono>
+#include <thread>
+
+using namespace std;
+
+const int RATE = 50;
+const int CAPACITY = 100;
+int main()
+{
+    int tokens = 0;
+    while (true)
+    {
+        this_thread::sleep_for(chrono::seconds(1));
+        tokens += RATE;
+        if (tokens > CAPACITY)
+            tokens = CAPACITY;
+        
+        int tokens_needed = 60;
+        if (tokens >= tokens_needed)
+        {
+            tokens -= tokens + tokens_needed;
+            cout << "Performed operations remaining tokens:" << tokens << endl;
+        }
+        else
+            cout << "Not enough tokens needed to wait" << endl;
+    }
+    return 0;
+}

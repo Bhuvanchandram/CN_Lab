@@ -1,25 +1,35 @@
 import java.net.*;
 import java.io.*;
 
-public class TCP_Server{
-    public static void main(String[] args) {
-        ServerSocket sersock= new ServerSocket(4000);
-        System.out.println("Server connected, waiting for client");
-        Socket sock=sersock.accept();
-        System.out.println("Connection accepted, waiting for chatting");
-        BufferedReader namReader=new BufferedReader(new InputStreamReader(sock.getInputStream()));
-        String fname=nameRead.readLine();
-        PrintWriter pwrite=new PrintWriter(sock.getOutputStream(),true);
-        try{
-            BufferedReader contentRead=new BufferedReader(new FileReader(fname));
+public class TCP_Server {
+    public static void main(String[] args) throws Exception {
+        ServerSocket sersock = new ServerSocket(4000);
+        System.out.println("Server Connected, waiting for client");
+
+        Socket sock = sersock.accept();
+        System.out.println("Connection successful, waiting for chatting");
+        BufferedReader nameRead = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+
+        String fname = nameRead.readLine();
+        PrintWriter pwrite = new PrintWriter(sock.getOutputStream(), true);
+
+        try {
+            BufferedReader contentRead = new BufferedReader(new FileReader(fname));
             String str;
-            while()
+            while ((str = contentRead.readLine()) != null) {
+                pwrite.println(str);
+            }
+            contentRead.close();
+        } 
+        catch (FileNotFoundException e) {
+            pwrite.println("File does not exist");
+        } 
+        finally {
+            System.out.println("Closing connection");
+            pwrite.close();
+            nameRead.close();
+            sock.close();
+            sersock.close();
         }
-        catch{
-
-        }
-        finally{
-
-        }
-    }   
+    }
 }
